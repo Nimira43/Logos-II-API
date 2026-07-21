@@ -10,7 +10,7 @@ router.get('/', async (req, res, next) => {
   } catch (err) {
     console.log(err)
     next(err)
-  }  
+  }
 })
 
 router.get('/:id', async (req, res, next) => {
@@ -22,18 +22,18 @@ router.get('/:id', async (req, res, next) => {
       throw new Error('Idea not found.')
     }
 
-    const idea = await Idea.findById(req.params.id)
-    
+    const idea = await Idea.findById(id)
+
     if (!idea) {
       res.status(404)
       throw new Error('Idea not found.')
     }
-    
+
     res.json(idea)
   } catch (err) {
     console.log(err)
     next(err)
-  }  
+  }
 })
 
 router.post('/', async (req, res, next) => {
@@ -66,9 +66,71 @@ router.post('/', async (req, res, next) => {
     console.log(err)
     next(err)
   }
-
-  // res.send(title)
 })
 
+router.delete('/:id', async (req, res, next) => {
+  try {
+    const { id } = req.params
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      res.status(404)
+      throw new Error('Idea not found.')
+    }
+
+    const idea = await Idea.findByIdAndDelete(id)
+
+    if (!idea) {
+      res.status(404)
+      throw new Error('Idea not found.')
+    }
+
+    res.json({
+      message: 'Idea deleted successfully.'
+    })
+  } catch (err) {
+    console.log(err)
+    next(err)
+  }
+})
+
+router.put('/:id', async (req, res, next) => {
+  try {
+    const { id } = req.params
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      res.status(404)
+      throw new Error('Idea not found.')
+    }
+
+    const { title, summary, description, tags } = req.body
+
+    if (!title?.trim() || !summary?.trim() || !description?.trim()) {
+      res.status(400)
+      throw new Error('Title, summary and description are required.')
+    }
+
+    const updatedIdea = await Idea.findByIdAndUpdate(id, {
+      title,
+      summary,
+      description,
+      tags: Array.isArray(tags)
+        ? tags
+        : tags.split(',').map((t) => t.trim())
+    }, {
+      new: true,
+      runValidators: true
+    })
+
+    if (!updatedIdea) {
+      res.status(404)
+      throw new Error('Idea not found.')
+    }
+
+    res.json(updatedIdea)
+  } catch (err) {
+    console.log(err)
+    next(err)
+  }
+})
 
 export default router
