@@ -2,6 +2,7 @@ import express from 'express'
 const router = express.Router()
 import Idea from '../models/Idea.js'
 import mongoose from 'mongoose'
+import { protect } from '../middleware/authMiddleware.js'
 
 router.get('/', async (req, res, next) => {
   try {
@@ -43,7 +44,7 @@ router.get('/:id', async (req, res, next) => {
   }
 })
 
-router.post('/', async (req, res, next) => {
+router.post('/', protect, async (req, res, next) => {
   try {
     const { title, summary, description, tags } = req.body || {}
 
@@ -75,7 +76,7 @@ router.post('/', async (req, res, next) => {
   }
 })
 
-router.delete('/:id', async (req, res, next) => {
+router.delete('/:id', protect, async (req, res, next) => {
   try {
     const { id } = req.params
 
@@ -100,7 +101,7 @@ router.delete('/:id', async (req, res, next) => {
   }
 })
 
-router.put('/:id', async (req, res, next) => {
+router.put('/:id', protect, async (req, res, next) => {
   try {
     const { id } = req.params
 
